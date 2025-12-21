@@ -1,5 +1,16 @@
-dataset
-.venv
-__pycache__
-segmented_masks_gmm
-segmented_masks_gmm_separated
+# Large image and output folders
+dataset/
+segmented_masks_gmm/
+segmented_masks_gmm_separated/
+
+# Virtual envs and caches
+.venv/
+__pycache__/
+
+# Notebook checkpoints
+.ipynb_checkpoints/
+
+# Byte-compiled / optimized / DLL files
+*.pyc
+*.pyo
+*.pyd
