@@ -298,6 +298,47 @@ The identification of **$d = 9$** as the optimal embedding dimension provides bo
 2.  **Multi-Variety Generalization**: Train on *Pisang Ambon* and other cultivars to develop a universal ripeness estimator.
 3.  **Edge Deployment**: Quantize and optimize the NCA-SVM pipeline for real-time inference on agricultural IoT devices (e.g., Raspberry Pi, NVIDIA Jetson).
 
+### 5.4. Comparison with Related Work
+
+We compare our methodology against a recent fruit classification study: **Singh & Malik (2022)**, *"Kinnow Classification"*, published in *Measurement: Sensors*.
+
+#### Methodological Analysis
+
+| Aspect | Singh & Malik (2022) | This Study (Pola) |
+| :--- | :--- | :--- |
+| **Dataset Size** | 150 fruits (1200 images, correlated) | 3277 independent images |
+| **Train/Test Split** | ❌ None (5-fold CV only) | ✅ 80/20 stratified split + 10-fold CV |
+| **Feature Selection** | ❌ Global (before CV → data leakage) | ✅ NCA fit on training set only |
+| **Normalization** | ❌ Pareto (amplifies noise) | ✅ Z-score (equal variance) |
+| **Dim. Reduction** | ❌ NCA + ReliefF (conceptually incompatible) | ✅ NCA alone (theoretically sound) |
+| **Hyperparameters** | ❌ Not reported | ✅ C=10, γ=scale, kernel=rbf |
+| **Reproducibility** | ❌ Dataset "on request" | ✅ Public Kaggle dataset |
+
+#### Key Methodological Flaws in Singh & Malik (2022)
+
+1.  **Pareto Normalization Incompatibility**:
+    *   Pareto scaling uses $x_p = \frac{x - \mu}{\sqrt{\sigma}}$, which *amplifies* low-variance (noisy) features relative to high-variance (informative) features.
+    *   Both NCA and ReliefF rely on **Euclidean distances** and assume features are on a comparable scale ($\sigma = 1$).
+    *   Using Pareto before these algorithms introduces bias toward noise, corrupting both the learned transformation (NCA) and feature rankings (ReliefF).
+
+2.  **NCA + ReliefF Ordering Conflict**:
+    *   NCA is a **dimensionality reduction** technique that creates *new* composite features.
+    *   ReliefF is a **feature selection** technique that ranks *original* features.
+    *   Applying ReliefF to NCA-transformed features is meaningless—NCA components are already optimized for classification.
+    *   The paper claims 928 features are "selected" from 1712, but NCA outputs $d \ll 1712$ components, not a subset.
+
+3.  **Data Leakage via Global Feature Selection**:
+    *   Feature selection was performed on the *entire* dataset before cross-validation.
+    *   This means the feature selector "sees" labels from validation folds, inflating reported accuracy (94.67%).
+    *   Proper methodology requires feature selection *inside* each CV fold.
+
+#### Why Our Approach is More Rigorous
+
+*   **Z-Score Normalization**: All features standardized to $\mu=0$, $\sigma=1$, ensuring equal contribution to distance-based algorithms.
+*   **NCA as Final Step**: NCA is used solely for supervised dimensionality reduction, not combined with incompatible selectors.
+*   **Proper Validation Protocol**: NCA fit only on training data; held-out test set provides unbiased generalization estimate.
+*   **Transparent Reporting**: All hyperparameters, metrics, and confidence intervals disclosed; dataset publicly available.
+
 ---
 
 ## 6. Repository Structure
