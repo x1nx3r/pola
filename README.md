@@ -9,7 +9,7 @@
 
 Accurate, non-destructive estimation of fruit ripeness is a critical challenge for post-harvest quality control, supply chain logistics, and consumer satisfaction. This study presents a robust, end-to-end computer vision pipeline for classifying the ripening stages of *Pisang Raja* (*Musa acuminata* × *balbisiana*), a commercially important banana cultivar in Southeast Asia. We propose a multi-modal feature extraction framework combining texture (GLCM), local structure (LBP), and color (HSV) descriptors, followed by **Neighborhood Components Analysis (NCA)** for supervised, discriminative dimensionality reduction.
 
-Our key finding is that **9 optimized NCA components** constitute the intrinsic dimensionality for this task, yielding a classification accuracy of **81.86%** with a Support Vector Machine (RBF kernel). This configuration significantly outperforms both lower-dimensional projections ($d=2$: 45.58%) and higher-dimensional alternatives ($d=10$: 80.18%), demonstrating that the 10th component captures noise rather than discriminative signal. These results establish a principled approach for embedded ripeness sensing systems in agricultural IoT.
+Our key finding is that **9 optimized NCA components** constitute the intrinsic dimensionality for this task, yielding a cross-validation accuracy of **81.27%** and a test accuracy of **68.45%** with a Support Vector Machine (RBF kernel). While the raw 62-dimensional features achieve slightly higher test accuracy (71.80%), the NCA model offers a **6.8× dimensionality reduction**, making it significantly more viable for embedded deployment. These results establish a principled approach for efficient ripeness sensing systems in agricultural IoT.
 
 ---
 
@@ -201,11 +201,11 @@ The RBF kernel consistently outperformed alternatives, indicating that class bou
 
 A **Grid Search** with **5-Fold Cross-Validation** was used to optimize:
 
-| Hyperparameter | Search Space | Selected Value |
+| Hyperparameter | Search Space | Selected Value (NCA 9) |
 | :--- | :--- | :--- |
-| $C$ (Regularization) | $\{0.1, 1, 10, 100\}$ | 100 |
-| $\gamma$ (Kernel width) | $\{\text{`scale'}, \text{`auto'}, 0.001, 0.01, 0.1\}$ | scale |
-| Kernel | $\{\text{linear}, \text{rbf}, \text{poly}\}$ | rbf |
+| $C$ (Regularization) | $\{0.1, 1, 10, 100\}$ | **10** |
+| $\gamma$ (Kernel width) | $\{\text{`scale'}, \text{`auto'}, 0.001, 0.01, 0.1\}$ | **scale** |
+| Kernel | $\{\text{linear}, \text{rbf}, \text{poly}\}$ | **rbf** |
 
 *   **$C$**: Controls the trade-off between smooth decision surface and classifying training points correctly. High $C$ prioritizes classification accuracy.
 *   **$\gamma$**: Defines the reach of a single training example. Low values mean far reach, high values mean close reach.
@@ -219,46 +219,72 @@ A **Grid Search** with **5-Fold Cross-Validation** was used to optimize:
 
 ## 4. Experimental Results
 
-### 4.1. Comparative Performance
+We conducted a rigorous comparative analysis between the raw high-dimensional features ($D=62$) and the optimized NCA projection ($d=9$).
 
-We systematically evaluated NCA projections at three dimensionalities ($d \in \{2, 9, 10\}$) using the same SVM classifier.
+### 4.1. Visual Performance Analysis
 
-| Configuration | Accuracy | Precision (Weighted) | Recall (Weighted) | F1-Score (Weighted) |
-| :--- | :---: | :---: | :---: | :---: |
-| **NCA 9 (Proposed)** | **81.86%** | **82.03%** | **81.86%** | **81.71%** |
-| NCA 10 | 80.18% | 80.24% | 80.18% | 80.04% |
-| NCA 2 | 45.58% | 52.83% | 45.58% | 45.16% |
+#### Confusion Matrices
+The confusion matrices reveal the model's ability to distinguish between adjacent ripening days.
 
-### 4.2. Analysis and Insights
+| Optimized Model (NCA 9) | Baseline Model (Raw Features) |
+| :---: | :---: |
+| ![NCA9 Confusion Matrix](figures/confusion_matrix_nca9.png) | ![Raw Confusion Matrix](figures/confusion_matrix_raw.png) |
+| **Figure 1a**: NCA projection focuses on key transitions. | **Figure 1b**: Raw features show slightly tighter diagonal. |
 
-#### 4.2.1. The Optimality of $d = 9$: Signal vs. Noise
+#### Per-Class Classification Metrics
+A detailed breakdown of Precision, Recall, and F1-Score for each ripening stage (H1–H10).
 
-The 9-component model outperforms the 10-component model by approximately **1.7 percentage points**. This counterintuitive result—that *fewer* dimensions yield *better* performance—can be explained as follows:
+| Optimized Model (NCA 9) Metrics | Baseline Model (Raw Features) Metrics |
+| :---: | :---: |
+| ![NCA9 Metrics](figures/per_class_metrics_nca9.png) | ![Raw Metrics](figures/per_class_metrics_raw.png) |
 
-*   **Intrinsic Dimensionality**: The true separability structure of the ripening classes lies on a manifold of approximately 9 degrees of freedom. The 10th NCA component captures residual variance that is primarily attributable to:
-    *   **Acquisition noise**: Sensor inconsistencies across the three smartphone cameras.
-    *   **Background clutter**: Variable environmental conditions in the capture setup.
-    *   **Biological irrelevance**: Natural intra-specimen variation not correlated with ripening stage.
+### 4.2. Quantitative Analysis
 
-*   **Regularization Effect**: By projecting to 9 dimensions instead of 10, we effectively apply a form of implicit regularization, discarding a noisy subspace that would otherwise contribute to overfitting.
+| Metric (Weighted Avg) | NCA 9 (Proposed) | Raw Features ($D=62$) | Delta |
+| :--- | :---: | :---: | :---: |
+| **Accuracy** | **68.45%** | 71.80% | -3.35% |
+| **Precision** | **70.66%** | 73.32% | -2.66% |
+| **Recall** | **68.45%** | 71.80% | -3.35% |
+| **F1-Score** | **68.71%** | 71.66% | -2.95% |
 
-#### 4.2.2. Failure of Low-Dimensional Projection ($d = 2$)
+> [!NOTE]
+> The slight drop in absolute accuracy for NCA 9 is an expected trade-off for a **6.8× reduction** in feature dimensionality (62 → 9 features). This massive compression makes the NCA model significantly more viable for embedded deployment on resource-constrained devices.
 
-The dramatic performance drop at $d=2$ (from 81.86% to 45.58%) illustrates the **Johnson-Lindenstrauss limitation**: projecting high-dimensional data to very low dimensions inevitably distorts pairwise distances.
+### 4.3. Class-Specific Insights
 
-While 2D embeddings are useful for visualization, they conflate classes that are separable in higher dimensions. For *Pisang Raja*, visualizing the H1–H10 manifold requires at least 9 axes to preserve class topology.
+1.  **Early Stage Stability (H1-H3)**:
+    *   Both models perform exceptionally well on **H1 (Day 1)**, with NCA 9 achieving **91.9% Precision** and Raw achieving **90.1%**.
+    *   This confirms that "Unripe/Green" features are visually distinct and well-captured by both GLCM and Color histograms.
 
-#### 4.2.3. Non-Linearity of the Ripening Manifold
+2.  **The "Turning" Point Challenge (H5-H6)**:
+    *   **H5 (Day 5)** shows a sharp divergence. NCA 9 maintains high precision (**91.5%**) but lower recall (**62.3%**), while the Raw model achieves perfect precision (**100%**) but lower recall (**58.0%**).
+    *   This suggests Day 5 represents a critical phase transition where visual ambiguity peaks.
 
-The substantial performance gap between the RBF kernel (~82%) and the linear kernel (~50%) confirms that ripening-induced visual changes do not evolve linearly in the feature space. The SVM's implicit mapping to an infinite-dimensional Hilbert space via the RBF kernel is necessary to capture the curved decision boundaries separating adjacent ripening stages.
+3.  **Senescence Detection (H9-H10)**:
+    *   **H10 (Rotten)** is better detected by the Raw model (Recall **54.9%**) compared to slightly better precision in NCA 9.
+    *   The drop in H9 performance across both models (F1 ~0.54-0.56) indicates that the visual boundary between "Overripe" and "Rotten" is fluid and harder to discretize.
+
+### 4.4. Cross-Validation Stability
+
+![CV Scores Comparison](figures/cv_scores_nca9.png)
+
+*   **NCA 9** demonstrates stable generalization with a mean CV accuracy of **81.27%** ($\pm 2.1\%$).
+*   **Raw Features** show slightly higher variance but similar mean stability (**82.91%** $\pm 2.3\%$).
 
 ---
 
-## 5. Conclusion and Future Work
+## 5. Conclusion
 
 ### 5.1. Summary
 
-We have developed and validated a robust pipeline for automated ripeness classification of *Pisang Raja* bananas. By combining GLCM, LBP, and HSV features with supervised NCA dimensionality reduction, we achieved **81.86% accuracy** on a challenging 10-class problem. The identification of **$d = 9$** as the optimal embedding dimension provides both theoretical insight (intrinsic dimensionality of the ripening manifold) and practical guidance (efficient feature representation for deployment).
+We have developed and validated a robust pipeline for automated ripeness classification of *Pisang Raja* bananas. By combining GLCM, LBP, and HSV features with supervised NCA dimensionality reduction, we achieved:
+
+| Metric | Cross-Validation (10-Fold) | Held-Out Test Set |
+| :--- | :---: | :---: |
+| **NCA 9 Accuracy** | 81.27% ± 2.1% | 68.45% |
+| **Raw Features Accuracy** | 82.91% ± 2.3% | 71.80% |
+
+The identification of **$d = 9$** as the optimal embedding dimension provides both theoretical insight (intrinsic dimensionality of the ripening manifold) and practical guidance (efficient feature representation for deployment).
 
 ### 5.2. Limitations
 
