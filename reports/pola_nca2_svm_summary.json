@@ -1,0 +1,8 @@
+{
+  "Model Type": "Support Vector Machine (SVM) - NCA2",
+  "Best Kernel": "rbf",
+  "Test Accuracy": "0.4558",
+  "Test Precision": "0.5283",
+  "Test Recall": "0.4558",
+  "Test F1-Score": "0.4516"
+}
