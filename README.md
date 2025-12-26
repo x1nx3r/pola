@@ -1,80 +1,82 @@
-# Optimized Ripeness Classification of Pisang Raja Using Neighborhood Components Analysis and Support Vector Machines
+# Klasifikasi Kematangan Pisang Raja yang Dioptimalkan Menggunakan Neighborhood Components Analysis dan Support Vector Machines
 
-**Repository**: `pola` Project  
-**Dataset Source**: [Banana Ripeness Image Dataset (Kaggle)](https://www.kaggle.com/datasets/wiratrnn/banana-ripeness-image-dataset)
+**Repositori**: Proyek `pola`  
+**Sumber Dataset**: [Banana Ripeness Image Dataset (Kaggle)](https://www.kaggle.com/datasets/wiratrnn/banana-ripeness-image-dataset)
 
----
-
-## Abstract
-
-Accurate, non-destructive estimation of fruit ripeness is a critical challenge for post-harvest quality control, supply chain logistics, and consumer satisfaction. This study presents a robust, end-to-end computer vision pipeline for classifying the ripening stages of *Pisang Raja* (*Musa acuminata* × *balbisiana*), a commercially important banana cultivar in Southeast Asia. We propose a multi-modal feature extraction framework combining texture (GLCM), local structure (LBP), and color (HSV) descriptors, followed by **Neighborhood Components Analysis (NCA)** for supervised, discriminative dimensionality reduction.
-
-Our key finding is that **9 optimized NCA components** constitute the intrinsic dimensionality for this task, yielding a cross-validation accuracy of **81.27%** and a test accuracy of **68.45%** with a Support Vector Machine (RBF kernel). While the raw 62-dimensional features achieve slightly higher test accuracy (71.80%), the NCA model offers a **6.8× dimensionality reduction**, making it significantly more viable for embedded deployment. These results establish a principled approach for efficient ripeness sensing systems in agricultural IoT.
+> **Catatan**: Versi bahasa Inggris tersedia di [README-en.md](README-en.md)
 
 ---
 
-## 1. Introduction
+## Abstrak
 
-### 1.1. Problem Context
+Estimasi kematangan buah secara akurat dan non-destruktif merupakan tantangan kritis untuk pengendalian kualitas pasca-panen, logistik rantai pasok, dan kepuasan konsumen. Penelitian ini menyajikan pipeline computer vision yang robust dan end-to-end untuk mengklasifikasikan tahap kematangan *Pisang Raja* (*Musa acuminata* × *balbisiana*), kultivar pisang yang penting secara komersial di Asia Tenggara. Kami mengusulkan framework ekstraksi fitur multi-modal yang menggabungkan deskriptor tekstur (GLCM), struktur lokal (LBP), dan warna (HSV), diikuti dengan **Neighborhood Components Analysis (NCA)** untuk reduksi dimensi diskriminatif yang supervised.
 
-Banana ripening is a complex, ethylene-driven biochemical process that produces visually observable changes: chlorophyll degradation (green → yellow), starch-to-sugar conversion, softening, and eventual browning due to enzymatic oxidation. Traditional quality assessment relies on human inspectors, which introduces subjectivity, inconsistency, and scalability issues.
-
-Automated computer vision offers a non-invasive alternative, but *fine-grained* ripeness classification poses unique challenges:
-1.  **High intra-class variance**: Specimens at the same ripening day exhibit significant visual variation due to natural biological differences and capture conditions.
-2.  **Low inter-class variance**: Adjacent ripening stages (e.g., Day 4 vs. Day 5) are visually similar, requiring discriminative features that capture subtle cues.
-3.  **Sensor heterogeneity**: Images captured from different smartphone cameras introduce domain shift.
-
-### 1.2. Contributions
-
-This study makes the following contributions:
-1.  **Feature Engineering**: We design a 62-dimensional feature vector combining GLCM texture descriptors, Uniform LBP histograms, and HSV color statistics, each targeting a specific visual modality of ripening.
-2.  **Supervised Dimensionality Reduction**: We demonstrate that NCA, a supervised metric learning technique, substantially outperforms unsupervised methods like PCA by explicitly optimizing for class separability.
-3.  **Intrinsic Dimensionality Identification**: Through systematic experimentation, we identify $d=9$ as the optimal embedding dimension, pruning a single noisy component that degraded performance in the $d=10$ baseline.
+Temuan utama kami adalah bahwa **9 komponen NCA yang dioptimalkan** merupakan dimensi intrinsik untuk tugas ini, menghasilkan akurasi cross-validation **81.27%** dan akurasi test **68.45%** dengan Support Vector Machine (kernel RBF). Meskipun fitur mentah 62-dimensi mencapai akurasi test sedikit lebih tinggi (71.80%), model NCA menawarkan **reduksi dimensi 6.8×**, menjadikannya lebih layak untuk deployment pada perangkat embedded. Hasil ini menetapkan pendekatan yang berprinsip untuk sistem penginderaan kematangan yang efisien dalam IoT pertanian.
 
 ---
 
-## 2. Dataset Description
+## 1. Pendahuluan
 
-### 2.1. Source
+### 1.1. Konteks Masalah
 
-The data is sourced from the **Banana Ripeness Image Dataset** hosted on Kaggle. This dataset documents the ripening progression of two Indonesian banana cultivars (*Pisang Raja*, *Pisang Ambon*) over time.
+Pematangan pisang adalah proses biokimia kompleks yang didorong oleh etilen yang menghasilkan perubahan visual yang dapat diamati: degradasi klorofil (hijau → kuning), konversi pati-ke-gula, pelunakan, dan akhirnya pencoklatan akibat oksidasi enzimatik. Penilaian kualitas tradisional bergantung pada inspektur manusia, yang memperkenalkan subjektivitas, inkonsistensi, dan masalah skalabilitas.
 
-*   **Dataset URL**: [https://www.kaggle.com/datasets/wiratrnn/banana-ripeness-image-dataset](https://www.kaggle.com/datasets/wiratrnn/banana-ripeness-image-dataset)
+Computer vision otomatis menawarkan alternatif non-invasif, tetapi klasifikasi kematangan *fine-grained* menghadirkan tantangan unik:
+1.  **Variansi intra-kelas tinggi**: Spesimen pada hari kematangan yang sama menunjukkan variasi visual yang signifikan karena perbedaan biologis alami dan kondisi pengambilan gambar.
+2.  **Variansi inter-kelas rendah**: Tahap kematangan yang berdekatan (misalnya, Hari 4 vs. Hari 5) secara visual mirip, memerlukan fitur diskriminatif yang menangkap petunjuk halus.
+3.  **Heterogenitas sensor**: Gambar yang diambil dari kamera smartphone berbeda memperkenalkan domain shift.
 
-### 2.2. Selected Subset: Pisang Raja (H1–H10)
+### 1.2. Kontribusi
 
-For this study, we extract only the **Pisang Raja** variety, tracking its ripening over 10 consecutive days.
+Penelitian ini memberikan kontribusi berikut:
+1.  **Feature Engineering**: Kami merancang vektor fitur 62-dimensi yang menggabungkan deskriptor tekstur GLCM, histogram Uniform LBP, dan statistik warna HSV, masing-masing menargetkan modalitas visual spesifik dari kematangan.
+2.  **Reduksi Dimensi Supervised**: Kami mendemonstrasikan bahwa NCA, teknik metric learning supervised, secara substansial mengungguli metode unsupervised seperti PCA dengan mengoptimalkan secara eksplisit untuk separabilitas kelas.
+3.  **Identifikasi Dimensi Intrinsik**: Melalui eksperimen sistematis, kami mengidentifikasi $d=9$ sebagai dimensi embedding optimal, memangkas satu komponen noise yang menurunkan performa pada baseline $d=10$.
 
-| Class Label | Description | Biological Stage |
+---
+
+## 2. Deskripsi Dataset
+
+### 2.1. Sumber
+
+Data bersumber dari **Banana Ripeness Image Dataset** yang di-host di Kaggle. Dataset ini mendokumentasikan progresi kematangan dua kultivar pisang Indonesia (*Pisang Raja*, *Pisang Ambon*) dari waktu ke waktu.
+
+*   **URL Dataset**: [https://www.kaggle.com/datasets/wiratrnn/banana-ripeness-image-dataset](https://www.kaggle.com/datasets/wiratrnn/banana-ripeness-image-dataset)
+
+### 2.2. Subset yang Dipilih: Pisang Raja (H1–H10)
+
+Untuk penelitian ini, kami hanya mengekstrak varietas **Pisang Raja**, melacak kematangannya selama 10 hari berturut-turut.
+
+| Label Kelas | Deskripsi | Tahap Biologis |
 | :---: | :--- | :--- |
-| **H1** | Day 1 | Unripe (green, high starch) |
-| **H2** | Day 2 | Unripe (green, trace yellowing) |
-| **H3** | Day 3 | Turning (green-yellow transition) |
-| **H4** | Day 4 | Ripe (predominantly yellow) |
-| **H5** | Day 5 | Ripe (full yellow, minor spotting) |
-| **H6** | Day 6 | Ripe (increased spotting) |
-| **H7** | Day 7 | Overripe (browning onset) |
-| **H8** | Day 8 | Overripe (significant browning) |
-| **H9** | Day 9 | Senescent (extensive browning) |
-| **H10** | Day 10 | Decayed (unsuitable for consumption) |
+| **H1** | Hari 1 | Mentah (hijau, pati tinggi) |
+| **H2** | Hari 2 | Mentah (hijau, jejak menguning) |
+| **H3** | Hari 3 | Transisi (transisi hijau-kuning) |
+| **H4** | Hari 4 | Matang (dominan kuning) |
+| **H5** | Hari 5 | Matang (kuning penuh, bintik minor) |
+| **H6** | Hari 6 | Matang (bintik meningkat) |
+| **H7** | Hari 7 | Lewat matang (onset pencoklatan) |
+| **H8** | Hari 8 | Lewat matang (pencoklatan signifikan) |
+| **H9** | Hari 9 | Senesen (pencoklatan ekstensif) |
+| **H10** | Hari 10 | Busuk (tidak layak konsumsi) |
 
-### 2.3. Acquisition Protocol
+### 2.3. Protokol Akuisisi
 
-*   **Devices**: Three distinct smartphone models with varying camera specifications (resolution, sensor type, processing algorithms).
-*   **Orientation**: Each sample was imaged from two angles (left, right) to capture pose variation.
-*   **Frequency**: Images captured twice daily under natural indoor lighting until complete fruit decay.
-*   **Filename Convention**: `{brand}_{id}_H{day}F{phase}_{side}.png`
+*   **Perangkat**: Tiga model smartphone berbeda dengan spesifikasi kamera bervariasi (resolusi, tipe sensor, algoritma pemrosesan).
+*   **Orientasi**: Setiap sampel dicitrakan dari dua sudut (kiri, kanan) untuk menangkap variasi pose.
+*   **Frekuensi**: Gambar diambil dua kali sehari di bawah pencahayaan indoor alami hingga pembusukan buah lengkap.
+*   **Konvensi Nama File**: `{brand}_{id}_H{day}F{phase}_{side}.png`
 
 ---
 
-## 3. Methodology
+## 3. Metodologi
 
-The proposed pipeline implements a classic pattern recognition workflow: **Feature Extraction → Normalization → Dimensionality Reduction → Classification**.
+Pipeline yang diusulkan mengimplementasikan alur kerja pengenalan pola klasik: **Ekstraksi Fitur → Normalisasi → Reduksi Dimensi → Klasifikasi**.
 
 ```
 ┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
-│ Raw Image   │───►│ Extract 62D │───►│ Z-Score     │───►│ NCA → 9D    │
-│ (RGB)       │    │ Features    │    │ Normalize   │    │ Projection  │
+│ Gambar      │───►│ Ekstrak 62D │───►│ Z-Score     │───►│ NCA → 9D    │
+│ Mentah (RGB)│    │ Fitur       │    │ Normalisasi │    │ Proyeksi    │
 └─────────────┘    └─────────────┘    └─────────────┘    └──────┬──────┘
                                                                 │
                                                                 ▼
@@ -84,302 +86,302 @@ The proposed pipeline implements a classic pattern recognition workflow: **Featu
                                                          └─────────────┘
 ```
 
-### 3.1. Feature Extraction ($D = 62$)
+### 3.1. Ekstraksi Fitur ($D = 62$)
 
-We extract three complementary feature modalities to comprehensively represent the visual characteristics of ripening bananas.
+Kami mengekstrak tiga modalitas fitur komplementer untuk merepresentasikan karakteristik visual pisang matang secara komprehensif.
 
-#### 3.1.1. Texture Features: Gray-Level Co-occurrence Matrix (GLCM)
+#### 3.1.1. Fitur Tekstur: Gray-Level Co-occurrence Matrix (GLCM)
 
-GLCM captures second-order texture statistics by analyzing the spatial relationships of pixel intensities.
+GLCM menangkap statistik tekstur orde kedua dengan menganalisis hubungan spasial intensitas piksel.
 
-*   **Theory**: The GLCM $P(i, j | d, \theta)$ counts how often a pixel with intensity $i$ co-occurs with a neighbor at distance $d$ and angle $\theta$ having intensity $j$. Statistical properties of this matrix describe texture patterns like coarseness, regularity, and contrast.
+*   **Teori**: GLCM $P(i, j | d, \theta)$ menghitung seberapa sering piksel dengan intensitas $i$ bersamaan dengan tetangga pada jarak $d$ dan sudut $\theta$ yang memiliki intensitas $j$. Properti statistik dari matriks ini menggambarkan pola tekstur seperti kekasaran, keteraturan, dan kontras.
 
-*   **Implementation**:
-    *   **Grayscale Quantization**: Images quantized to $L=16$ levels to reduce matrix size while preserving discriminative structure.
-    *   **Spatial Parameters**: Distance $d \in \{1, 2, 4\}$ pixels; Angle $\theta \in \{0°, 45°, 90°, 135°\}$. This multi-scale, multi-orientation approach captures both fine and coarse texture.
-    *   **Derived Statistics** (per GLCM, aggregated via mean/std over all $d$-$\theta$ combinations):
-        | Property | Interpretation |
+*   **Implementasi**:
+    *   **Kuantisasi Grayscale**: Gambar dikuantisasi ke $L=16$ level untuk mengurangi ukuran matriks sambil mempertahankan struktur diskriminatif.
+    *   **Parameter Spasial**: Jarak $d \in \{1, 2, 4\}$ piksel; Sudut $\theta \in \{0°, 45°, 90°, 135°\}$. Pendekatan multi-skala, multi-orientasi ini menangkap tekstur halus dan kasar.
+    *   **Statistik Turunan** (per GLCM, diagregasi via mean/std atas semua kombinasi $d$-$\theta$):
+        | Properti | Interpretasi |
         | :--- | :--- |
-        | Contrast | Local intensity variation |
-        | Dissimilarity | Linear distance between co-occurring intensities |
-        | Homogeneity | Closeness to the diagonal (smooth regions) |
-        | Energy | Texture uniformity (inverse entropy) |
-        | Correlation | Linear dependency of gray levels |
-        | ASM | Sum of squared GLCM entries (orderliness) |
+        | Contrast | Variasi intensitas lokal |
+        | Dissimilarity | Jarak linear antara intensitas yang bersamaan |
+        | Homogeneity | Kedekatan ke diagonal (area halus) |
+        | Energy | Keseragaman tekstur (inverse entropy) |
+        | Correlation | Ketergantungan linear level abu-abu |
+        | ASM | Jumlah kuadrat entri GLCM (keteraturan) |
 
-    *   **Output Dimensionality**: $6 \text{ properties} \times 2 \text{ (mean, std)} = 12$ features.
+    *   **Dimensi Output**: $6 \text{ properti} \times 2 \text{ (mean, std)} = 12$ fitur.
 
-#### 3.1.2. Local Structure Features: Local Binary Patterns (LBP)
+#### 3.1.2. Fitur Struktur Lokal: Local Binary Patterns (LBP)
 
-LBP encodes local micro-texture patterns, such as edges, spots, and flat regions, in a computationally efficient manner.
+LBP mengenkode pola mikro-tekstur lokal, seperti tepi, titik, dan area datar, dengan cara yang efisien secara komputasi.
 
-*   **Theory**: For each pixel, compare its intensity with $P$ neighbors on a circle of radius $R$. Construct a binary code where bit $b_i = 1$ if neighbor $i$ is brighter, else $0$. The resulting decimal value labels the pattern.
+*   **Teori**: Untuk setiap piksel, bandingkan intensitasnya dengan $P$ tetangga pada lingkaran dengan radius $R$. Konstruksi kode biner di mana bit $b_i = 1$ jika tetangga $i$ lebih terang, jika tidak $0$. Nilai desimal yang dihasilkan melabeli pola.
 
-*   **Implementation**:
-    *   **Variant**: **Uniform LBP**. Patterns with at most two bitwise transitions (0→1 or 1→0) are considered "uniform" and represent fundamental structures (edges, corners). All other patterns are grouped into a single "non-uniform" bin. This drastically reduces feature dimensionality while retaining the most informative patterns.
-    *   **Parameters**: $P=8$ neighbors, $R=1$ pixel radius.
-    *   **Output Dimensionality**: $P + 2 = 10$ histogram bins (8 uniform patterns + 1 non-uniform + 1 flat).
+*   **Implementasi**:
+    *   **Varian**: **Uniform LBP**. Pola dengan paling banyak dua transisi bitwise (0→1 atau 1→0) dianggap "uniform" dan merepresentasikan struktur fundamental (tepi, sudut). Semua pola lain dikelompokkan ke dalam satu bin "non-uniform". Ini secara drastis mengurangi dimensi fitur sambil mempertahankan pola paling informatif.
+    *   **Parameter**: $P=8$ tetangga, $R=1$ radius piksel.
+    *   **Dimensi Output**: $P + 2 = 10$ bin histogram (8 pola uniform + 1 non-uniform + 1 flat).
 
-#### 3.1.3. Color Features: HSV Histograms
+#### 3.1.3. Fitur Warna: Histogram HSV
 
-The HSV color space separates chromatic information (Hue, Saturation) from intensity (Value), providing robustness to lighting variations.
+Ruang warna HSV memisahkan informasi kromatik (Hue, Saturation) dari intensitas (Value), memberikan robustness terhadap variasi pencahayaan.
 
-*   **Rationale for Banana Ripening**:
-    *   **Hue (H)**: Directly encodes the green → yellow → brown color transition, the primary visual cue of ripening.
-    *   **Saturation (S)**: Indicates color purity; overripe bananas often exhibit desaturation.
-    *   **Value (V)**: Represents brightness; browning decreases reflectance.
+*   **Alasan untuk Kematangan Pisang**:
+    *   **Hue (H)**: Langsung mengenkode transisi warna hijau → kuning → coklat, petunjuk visual utama kematangan.
+    *   **Saturation (S)**: Menunjukkan kemurnian warna; pisang lewat matang sering menunjukkan desaturasi.
+    *   **Value (V)**: Merepresentasikan kecerahan; pencoklatan menurunkan reflektansi.
 
-*   **Implementation**:
-    *   **Histogram Binning**:
-        | Channel | # Bins | Range |
+*   **Implementasi**:
+    *   **Binning Histogram**:
+        | Channel | # Bin | Range |
         | :--- | :---: | :--- |
         | Hue (H) | 16 | [0, 180) |
         | Saturation (S) | 16 | [0, 256) |
         | Value (V) | 8 | [0, 256) |
-    *   **Normalization**: L1-normalized to sum to 1, making the feature invariant to image size.
-    *   **Output Dimensionality**: $16 + 16 + 8 = 40$ features.
+    *   **Normalisasi**: L1-normalized untuk berjumlah 1, membuat fitur invarian terhadap ukuran gambar.
+    *   **Dimensi Output**: $16 + 16 + 8 = 40$ fitur.
 
-**Total Raw Features**: $12 + 10 + 40 = 62$.
+**Total Fitur Mentah**: $12 + 10 + 40 = 62$.
 
-### 3.2. Data Preprocessing: Z-Score Standardization
+### 3.2. Preprocessing Data: Standardisasi Z-Score
 
-Features are standardized to zero mean ($\mu = 0$) and unit variance ($\sigma = 1$):
+Fitur distandardisasi ke mean nol ($\mu = 0$) dan varians unit ($\sigma = 1$):
 
 $$z_i = \frac{x_i - \bar{x}_i}{s_i}$$
 
-where $\bar{x}_i$ and $s_i$ are the sample mean and standard deviation of feature $i$ computed on the training set. This is critical because:
-1.  **Scale Invariance**: GLCM Energy (e.g., range $[0, 1]$) and GLCM Contrast (e.g., range $[0, 100]$) would otherwise dominate distance-based algorithms.
-2.  **Gradient Optimization**: NCA's L-BFGS-B optimizer converges faster and more reliably on standardized inputs.
+di mana $\bar{x}_i$ dan $s_i$ adalah sample mean dan standard deviation dari fitur $i$ yang dihitung pada training set. Ini kritis karena:
+1.  **Invariansi Skala**: GLCM Energy (misalnya, range $[0, 1]$) dan GLCM Contrast (misalnya, range $[0, 100]$) akan mendominasi algoritma berbasis jarak.
+2.  **Optimisasi Gradien**: Optimizer L-BFGS-B NCA konvergen lebih cepat dan lebih andal pada input yang terstandardisasi.
 
-### 3.3. Dimensionality Reduction: Neighborhood Components Analysis (NCA)
+### 3.3. Reduksi Dimensi: Neighborhood Components Analysis (NCA)
 
-NCA is the cornerstone of our methodology. Unlike Principal Component Analysis (PCA), which seeks directions of maximum *variance*, NCA seeks directions of maximum *class separability*.
+NCA adalah landasan metodologi kami. Tidak seperti Principal Component Analysis (PCA), yang mencari arah variansi *maksimum*, NCA mencari arah *separabilitas kelas* maksimum.
 
-#### 3.3.1. Mathematical Formulation
+#### 3.3.1. Formulasi Matematis
 
-Given $N$ labeled training samples $\{(\mathbf{x}_i, y_i)\}_{i=1}^N$, NCA learns a linear transformation $\mathbf{A} \in \mathbb{R}^{d \times D}$ that maps $\mathbf{x} \in \mathbb{R}^D$ to $\mathbf{z} = \mathbf{A}\mathbf{x} \in \mathbb{R}^d$.
+Diberikan $N$ sampel training berlabel $\{(\mathbf{x}_i, y_i)\}_{i=1}^N$, NCA mempelajari transformasi linear $\mathbf{A} \in \mathbb{R}^{d \times D}$ yang memetakan $\mathbf{x} \in \mathbb{R}^D$ ke $\mathbf{z} = \mathbf{A}\mathbf{x} \in \mathbb{R}^d$.
 
-In the projected space, define a softmax probability that point $i$ selects point $j$ as its neighbor:
+Dalam ruang terproyeksi, definisikan probabilitas softmax bahwa titik $i$ memilih titik $j$ sebagai tetangganya:
 
 $$p_{ij} = \frac{\exp(-||\mathbf{A}\mathbf{x}_i - \mathbf{A}\mathbf{x}_j||^2)}{\sum_{k \neq i} \exp(-||\mathbf{A}\mathbf{x}_i - \mathbf{A}\mathbf{x}_k||^2)}, \quad p_{ii} = 0$$
 
-The probability that point $i$ is correctly classified (leave-one-out) is:
+Probabilitas bahwa titik $i$ diklasifikasikan dengan benar (leave-one-out) adalah:
 
 $$p_i = \sum_{j: y_j = y_i} p_{ij}$$
 
-**Objective Function**: Maximize the expected number of correctly classified points:
+**Fungsi Objektif**: Maksimalkan jumlah yang diharapkan dari titik yang diklasifikasikan dengan benar:
 
 $$J(\mathbf{A}) = \sum_{i=1}^N p_i = \sum_{i=1}^N \sum_{j: y_j = y_i} p_{ij}$$
 
-#### 3.3.2. Interpretation
+#### 3.3.2. Interpretasi
 
-*   NCA pulls together samples of the same class while pushing apart samples of different classes.
-*   Unlike k-NN, which uses hard assignment, NCA uses soft probabilistic assignment, making the objective differentiable and amenable to gradient-based optimization.
-*   The transformation $\mathbf{A}$ learns a Mahalanobis-like distance metric optimized for the specific classification task.
+*   NCA menarik sampel dari kelas yang sama bersamaan sambil mendorong sampel dari kelas berbeda menjauh.
+*   Tidak seperti k-NN, yang menggunakan hard assignment, NCA menggunakan soft probabilistic assignment, membuat objektif dapat didiferensialkan dan dapat dioptimasi berbasis gradien.
+*   Transformasi $\mathbf{A}$ mempelajari metrik jarak seperti-Mahalanobis yang dioptimalkan untuk tugas klasifikasi spesifik.
 
-#### 3.3.3. Configuration
+#### 3.3.3. Konfigurasi
 
-*   **Target Dimension ($d$)**: **9** (empirically selected via validation).
-*   **Optimizer**: L-BFGS-B (limited-memory BFGS with box constraints).
-*   **Initialization**: PCA pre-projection (warm start for faster convergence).
-*   **Random State**: Fixed at 42 for reproducibility.
+*   **Dimensi Target ($d$)**: **9** (dipilih secara empiris via validasi).
+*   **Optimizer**: L-BFGS-B (limited-memory BFGS dengan box constraints).
+*   **Inisialisasi**: Pra-proyeksi PCA (warm start untuk konvergensi lebih cepat).
+*   **Random State**: Ditetapkan di 42 untuk reprodusibilitas.
 
-### 3.4. Classification: Support Vector Machine (SVM)
+### 3.4. Klasifikasi: Support Vector Machine (SVM)
 
-The 9-dimensional NCA-projected features are classified using a Support Vector Machine.
+Fitur terproyeksi NCA 9-dimensi diklasifikasikan menggunakan Support Vector Machine.
 
-#### 3.4.1. Kernel Selection
+#### 3.4.1. Pemilihan Kernel
 
-We evaluated three kernels:
+Kami mengevaluasi tiga kernel:
 *   **Linear**: $K(\mathbf{x}, \mathbf{x}') = \mathbf{x}^T \mathbf{x}'$
 *   **Polynomial**: $K(\mathbf{x}, \mathbf{x}') = (\gamma \mathbf{x}^T \mathbf{x}' + r)^d$
 *   **RBF (Radial Basis Function)**: $K(\mathbf{x}, \mathbf{x}') = \exp(-\gamma ||\mathbf{x} - \mathbf{x}'||^2)$
 
-The RBF kernel consistently outperformed alternatives, indicating that class boundaries in the NCA space are non-linear.
+Kernel RBF secara konsisten mengungguli alternatif, menunjukkan bahwa batas kelas dalam ruang NCA adalah non-linear.
 
-#### 3.4.2. Hyperparameter Optimization
+#### 3.4.2. Optimisasi Hyperparameter
 
-A **Grid Search** with **5-Fold Cross-Validation** was used to optimize:
+**Grid Search** dengan **5-Fold Cross-Validation** digunakan untuk mengoptimasi:
 
-| Hyperparameter | Search Space | Selected Value (NCA 9) |
+| Hyperparameter | Ruang Pencarian | Nilai Terpilih (NCA 9) |
 | :--- | :--- | :--- |
-| $C$ (Regularization) | $\{0.1, 1, 10, 100\}$ | **10** |
-| $\gamma$ (Kernel width) | $\{\text{`scale'}, \text{`auto'}, 0.001, 0.01, 0.1\}$ | **scale** |
+| $C$ (Regularisasi) | $\{0.1, 1, 10, 100\}$ | **10** |
+| $\gamma$ (Lebar kernel) | $\{\text{`scale'}, \text{`auto'}, 0.001, 0.01, 0.1\}$ | **scale** |
 | Kernel | $\{\text{linear}, \text{rbf}, \text{poly}\}$ | **rbf** |
 
-*   **$C$**: Controls the trade-off between smooth decision surface and classifying training points correctly. High $C$ prioritizes classification accuracy.
-*   **$\gamma$**: Defines the reach of a single training example. Low values mean far reach, high values mean close reach.
+*   **$C$**: Mengontrol trade-off antara permukaan keputusan halus dan mengklasifikasikan titik training dengan benar. $C$ tinggi memprioritaskan akurasi klasifikasi.
+*   **$\gamma$**: Mendefinisikan jangkauan satu contoh training. Nilai rendah berarti jangkauan jauh, nilai tinggi berarti jangkauan dekat.
 
-#### 3.4.3. Validation Protocol
+#### 3.4.3. Protokol Validasi
 
-*   **Test Split**: 20% of data reserved for final evaluation (stratified by class).
-*   **Cross-Validation**: 10-Fold Stratified CV on the training set to estimate generalization error and tune hyperparameters.
+*   **Split Test**: 20% data dicadangkan untuk evaluasi akhir (stratified by class).
+*   **Cross-Validation**: 10-Fold Stratified CV pada training set untuk mengestimasi generalization error dan tuning hyperparameter.
 
 ---
 
-## 4. Experimental Results
+## 4. Hasil Eksperimen
 
-We conducted a rigorous comparative analysis between the raw high-dimensional features ($D=62$) and the optimized NCA projection ($d=9$).
+Kami melakukan analisis komparatif yang ketat antara fitur mentah berdimensi tinggi ($D=62$) dan proyeksi NCA yang dioptimalkan ($d=9$).
 
-### 4.1. Visual Performance Analysis
+### 4.1. Analisis Performa Visual
 
 #### Confusion Matrices
-The confusion matrices reveal the model's ability to distinguish between adjacent ripening days.
+Confusion matrices mengungkapkan kemampuan model untuk membedakan antara hari kematangan yang berdekatan.
 
-| Optimized Model (NCA 9) | Baseline Model (Raw Features) |
+| Model Teroptimasi (NCA 9) | Model Baseline (Fitur Mentah) |
 | :---: | :---: |
 | ![NCA9 Confusion Matrix](figures/confusion_matrix_nca9.png) | ![Raw Confusion Matrix](figures/confusion_matrix_raw.png) |
-| **Figure 1a**: NCA projection focuses on key transitions. | **Figure 1b**: Raw features show slightly tighter diagonal. |
+| **Gambar 1a**: Proyeksi NCA fokus pada transisi kunci. | **Gambar 1b**: Fitur mentah menunjukkan diagonal sedikit lebih ketat. |
 
-#### Per-Class Classification Metrics
-A detailed breakdown of Precision, Recall, and F1-Score for each ripening stage (H1–H10).
+#### Metrik Klasifikasi Per-Kelas
+Breakdown detail Precision, Recall, dan F1-Score untuk setiap tahap kematangan (H1–H10).
 
-| Optimized Model (NCA 9) Metrics | Baseline Model (Raw Features) Metrics |
+| Metrik Model Teroptimasi (NCA 9) | Metrik Model Baseline (Fitur Mentah) |
 | :---: | :---: |
 | ![NCA9 Metrics](figures/per_class_metrics_nca9.png) | ![Raw Metrics](figures/per_class_metrics_raw.png) |
 
-### 4.2. Quantitative Analysis
+### 4.2. Analisis Kuantitatif
 
-| Metric (Weighted Avg) | NCA 9 (Proposed) | Raw Features ($D=62$) | Delta |
+| Metrik (Weighted Avg) | NCA 9 (Diusulkan) | Fitur Mentah ($D=62$) | Delta |
 | :--- | :---: | :---: | :---: |
-| **Accuracy** | **68.45%** | 71.80% | -3.35% |
+| **Akurasi** | **68.45%** | 71.80% | -3.35% |
 | **Precision** | **70.66%** | 73.32% | -2.66% |
 | **Recall** | **68.45%** | 71.80% | -3.35% |
 | **F1-Score** | **68.71%** | 71.66% | -2.95% |
 
 > [!NOTE]
-> The slight drop in absolute accuracy for NCA 9 is an expected trade-off for a **6.8× reduction** in feature dimensionality (62 → 9 features). This massive compression makes the NCA model significantly more viable for embedded deployment on resource-constrained devices.
+> Penurunan sedikit dalam akurasi absolut untuk NCA 9 adalah trade-off yang diharapkan untuk **reduksi dimensi 6.8×** (62 → 9 fitur). Kompresi masif ini membuat model NCA secara signifikan lebih layak untuk deployment pada perangkat dengan resource terbatas.
 
-### 4.3. Class-Specific Insights
+### 4.3. Insight Spesifik Kelas
 
-1.  **Early Stage Stability (H1-H3)**:
-    *   Both models perform exceptionally well on **H1 (Day 1)**, with NCA 9 achieving **91.9% Precision** and Raw achieving **90.1%**.
-    *   This confirms that "Unripe/Green" features are visually distinct and well-captured by both GLCM and Color histograms.
+1.  **Stabilitas Tahap Awal (H1-H3)**:
+    *   Kedua model berkinerja sangat baik pada **H1 (Hari 1)**, dengan NCA 9 mencapai **91.9% Precision** dan Raw mencapai **90.1%**.
+    *   Ini mengkonfirmasi bahwa fitur "Mentah/Hijau" secara visual berbeda dan ditangkap dengan baik oleh GLCM dan histogram Warna.
 
-2.  **The "Turning" Point Challenge (H5-H6)**:
-    *   **H5 (Day 5)** shows a sharp divergence. NCA 9 maintains high precision (**91.5%**) but lower recall (**62.3%**), while the Raw model achieves perfect precision (**100%**) but lower recall (**58.0%**).
-    *   This suggests Day 5 represents a critical phase transition where visual ambiguity peaks.
+2.  **Tantangan Titik "Transisi" (H5-H6)**:
+    *   **H5 (Hari 5)** menunjukkan divergensi tajam. NCA 9 mempertahankan precision tinggi (**91.5%**) tetapi recall lebih rendah (**62.3%**), sementara model Raw mencapai precision sempurna (**100%**) tetapi recall lebih rendah (**58.0%**).
+    *   Ini menunjukkan Hari 5 merepresentasikan transisi fase kritis di mana ambiguitas visual memuncak.
 
-3.  **Senescence Detection (H9-H10)**:
-    *   **H10 (Rotten)** is better detected by the Raw model (Recall **54.9%**) compared to slightly better precision in NCA 9.
-    *   The drop in H9 performance across both models (F1 ~0.54-0.56) indicates that the visual boundary between "Overripe" and "Rotten" is fluid and harder to discretize.
+3.  **Deteksi Senesen (H9-H10)**:
+    *   **H10 (Busuk)** lebih baik dideteksi oleh model Raw (Recall **54.9%**) dibandingkan precision sedikit lebih baik di NCA 9.
+    *   Penurunan performa H9 di kedua model (F1 ~0.54-0.56) menunjukkan bahwa batas visual antara "Lewat Matang" dan "Busuk" bersifat fluid dan lebih sulit untuk didiskritisasi.
 
-### 4.4. Cross-Validation Stability
+### 4.4. Stabilitas Cross-Validation
 
 ![CV Scores Comparison](figures/cv_scores_nca9.png)
 
-*   **NCA 9** demonstrates stable generalization with a mean CV accuracy of **81.27%** ($\pm 2.1\%$).
-*   **Raw Features** show slightly higher variance but similar mean stability (**82.91%** $\pm 2.3\%$).
+*   **NCA 9** mendemonstrasikan generalisasi stabil dengan akurasi CV mean **81.27%** ($\pm 2.1\%$).
+*   **Fitur Mentah** menunjukkan varians sedikit lebih tinggi tetapi stabilitas mean serupa (**82.91%** $\pm 2.3\%$).
 
 ---
 
-## 5. Conclusion
+## 5. Kesimpulan
 
-### 5.1. Summary
+### 5.1. Ringkasan
 
-We have developed and validated a robust pipeline for automated ripeness classification of *Pisang Raja* bananas. By combining GLCM, LBP, and HSV features with supervised NCA dimensionality reduction, we achieved:
+Kami telah mengembangkan dan memvalidasi pipeline yang robust untuk klasifikasi kematangan otomatis pisang *Pisang Raja*. Dengan menggabungkan fitur GLCM, LBP, dan HSV dengan reduksi dimensi NCA supervised, kami mencapai:
 
-| Metric | Cross-Validation (10-Fold) | Held-Out Test Set |
+| Metrik | Cross-Validation (10-Fold) | Held-Out Test Set |
 | :--- | :---: | :---: |
-| **NCA 9 Accuracy** | 81.27% ± 2.1% | 68.45% |
-| **Raw Features Accuracy** | 82.91% ± 2.3% | 71.80% |
+| **Akurasi NCA 9** | 81.27% ± 2.1% | 68.45% |
+| **Akurasi Fitur Mentah** | 82.91% ± 2.3% | 71.80% |
 
-The identification of **$d = 9$** as the optimal embedding dimension provides both theoretical insight (intrinsic dimensionality of the ripening manifold) and practical guidance (efficient feature representation for deployment).
+Identifikasi **$d = 9$** sebagai dimensi embedding optimal memberikan insight teoretis (dimensi intrinsik dari manifold kematangan) dan panduan praktis (representasi fitur efisien untuk deployment).
 
-### 5.2. Limitations
+### 5.2. Keterbatasan
 
-*   **Single Variety**: Results are specific to *Pisang Raja*; generalization to other cultivars requires further validation.
-*   **Controlled Environment**: Data was captured indoors under relatively controlled conditions; field deployment may face additional challenges (variable outdoor lighting, occlusion).
-*   **Static Analysis**: The model classifies single images; temporal modeling (e.g., tracking ripening progression over time) could improve predictions.
+*   **Varietas Tunggal**: Hasil spesifik untuk *Pisang Raja*; generalisasi ke kultivar lain memerlukan validasi lebih lanjut.
+*   **Lingkungan Terkontrol**: Data diambil di dalam ruangan di bawah kondisi yang relatif terkontrol; deployment lapangan mungkin menghadapi tantangan tambahan (pencahayaan outdoor variabel, oklusi).
+*   **Analisis Statis**: Model mengklasifikasikan gambar tunggal; pemodelan temporal (misalnya, melacak progresi kematangan dari waktu ke waktu) dapat meningkatkan prediksi.
 
-### 5.3. Future Directions
+### 5.3. Arah Masa Depan
 
-1.  **Deep Learning**: Replace handcrafted features with CNN-based embeddings (e.g., ResNet, EfficientNet) for end-to-end learning.
-2.  **Multi-Variety Generalization**: Train on *Pisang Ambon* and other cultivars to develop a universal ripeness estimator.
-3.  **Edge Deployment**: Quantize and optimize the NCA-SVM pipeline for real-time inference on agricultural IoT devices (e.g., Raspberry Pi, NVIDIA Jetson).
+1.  **Deep Learning**: Ganti fitur handcrafted dengan embedding berbasis CNN (misalnya, ResNet, EfficientNet) untuk pembelajaran end-to-end.
+2.  **Generalisasi Multi-Varietas**: Latih pada *Pisang Ambon* dan kultivar lain untuk mengembangkan estimator kematangan universal.
+3.  **Edge Deployment**: Kuantisasi dan optimasi pipeline NCA-SVM untuk inferensi real-time pada perangkat IoT pertanian (misalnya, Raspberry Pi, NVIDIA Jetson).
 
-### 5.4. Comparison with Related Work
+### 5.4. Perbandingan dengan Penelitian Terkait
 
-We compare our methodology against a recent fruit classification study: **Singh & Malik (2022)**, *"Kinnow Classification"*, published in *Measurement: Sensors*.
+Kami membandingkan metodologi kami dengan studi klasifikasi buah terbaru: **Singh & Malik (2022)**, *"Kinnow Classification"*, dipublikasikan di *Measurement: Sensors*.
 
-#### Methodological Analysis
+#### Analisis Metodologis
 
-| Aspect | Singh & Malik (2022) | This Study (Pola) |
+| Aspek | Singh & Malik (2022) | Studi Ini (Pola) |
 | :--- | :--- | :--- |
-| **Dataset Size** | 150 fruits (1200 images, correlated) | 3277 independent images |
-| **Train/Test Split** | ❌ None (5-fold CV only) | ✅ 80/20 stratified split + 10-fold CV |
-| **Feature Selection** | ❌ Global (before CV → data leakage) | ✅ NCA fit on training set only |
-| **Normalization** | ❌ Pareto (amplifies noise) | ✅ Z-score (equal variance) |
-| **Dim. Reduction** | ❌ NCA + ReliefF (conceptually incompatible) | ✅ NCA alone (theoretically sound) |
-| **Hyperparameters** | ❌ Not reported | ✅ C=10, γ=scale, kernel=rbf |
-| **Reproducibility** | ❌ Dataset "on request" | ✅ Public Kaggle dataset |
+| **Ukuran Dataset** | 150 buah (1200 gambar, terkorelasi) | 3277 gambar independen |
+| **Split Train/Test** | Tidak ada (hanya 5-fold CV) | Split stratified 80/20 + 10-fold CV |
+| **Seleksi Fitur** | Global (sebelum CV → kebocoran data) | NCA fit hanya pada training set |
+| **Normalisasi** | Pareto (memperkuat noise) | Z-score (varians sama) |
+| **Reduksi Dimensi** | NCA + ReliefF (tidak kompatibel secara konseptual) | NCA saja (secara teoretis valid) |
+| **Hyperparameter** | Tidak dilaporkan | C=10, γ=scale, kernel=rbf |
+| **Reprodusibilitas** | Dataset "on request" | Dataset Kaggle publik |
 
-#### Key Methodological Flaws in Singh & Malik (2022)
+#### Kelemahan Metodologis Kunci pada Singh & Malik (2022)
 
-1.  **Pareto Normalization Incompatibility**:
-    *   Pareto scaling uses $x_p = \frac{x - \mu}{\sqrt{\sigma}}$, which *amplifies* low-variance (noisy) features relative to high-variance (informative) features.
-    *   Both NCA and ReliefF rely on **Euclidean distances** and assume features are on a comparable scale ($\sigma = 1$).
-    *   Using Pareto before these algorithms introduces bias toward noise, corrupting both the learned transformation (NCA) and feature rankings (ReliefF).
+1.  **Inkompatibilitas Normalisasi Pareto**:
+    *   Scaling Pareto menggunakan $x_p = \frac{x - \mu}{\sqrt{\sigma}}$, yang *memperkuat* fitur low-variance (noisy) relatif terhadap fitur high-variance (informatif).
+    *   Baik NCA maupun ReliefF bergantung pada **jarak Euclidean** dan mengasumsikan fitur berada pada skala yang sebanding ($\sigma = 1$).
+    *   Menggunakan Pareto sebelum algoritma ini memperkenalkan bias terhadap noise, merusak transformasi yang dipelajari (NCA) dan ranking fitur (ReliefF).
 
-2.  **NCA + ReliefF Ordering Conflict**:
-    *   NCA is a **dimensionality reduction** technique that creates *new* composite features.
-    *   ReliefF is a **feature selection** technique that ranks *original* features.
-    *   Applying ReliefF to NCA-transformed features is meaningless—NCA components are already optimized for classification.
-    *   The paper claims 928 features are "selected" from 1712, but NCA outputs $d \ll 1712$ components, not a subset.
+2.  **Konflik Urutan NCA + ReliefF**:
+    *   NCA adalah teknik **reduksi dimensi** yang menciptakan fitur komposit *baru*.
+    *   ReliefF adalah teknik **seleksi fitur** yang meranking fitur *asli*.
+    *   Menerapkan ReliefF ke fitur yang ditransformasi NCA tidak bermakna—komponen NCA sudah dioptimalkan untuk klasifikasi.
+    *   Paper mengklaim 928 fitur "dipilih" dari 1712, tetapi NCA menghasilkan $d \ll 1712$ komponen, bukan subset.
 
-3.  **Data Leakage via Global Feature Selection**:
-    *   Feature selection was performed on the *entire* dataset before cross-validation.
-    *   This means the feature selector "sees" labels from validation folds, inflating reported accuracy (94.67%).
-    *   Proper methodology requires feature selection *inside* each CV fold.
+3.  **Kebocoran Data via Seleksi Fitur Global**:
+    *   Seleksi fitur dilakukan pada *seluruh* dataset sebelum cross-validation.
+    *   Ini berarti selektor fitur "melihat" label dari fold validasi, menggembungkan akurasi yang dilaporkan (94.67%).
+    *   Metodologi yang tepat memerlukan seleksi fitur *di dalam* setiap CV fold.
 
-#### Why Our Approach is More Rigorous
+#### Mengapa Pendekatan Kami Lebih Ketat
 
-*   **Z-Score Normalization**: All features standardized to $\mu=0$, $\sigma=1$, ensuring equal contribution to distance-based algorithms.
-*   **NCA as Final Step**: NCA is used solely for supervised dimensionality reduction, not combined with incompatible selectors.
-*   **Proper Validation Protocol**: NCA fit only on training data; held-out test set provides unbiased generalization estimate.
-*   **Transparent Reporting**: All hyperparameters, metrics, and confidence intervals disclosed; dataset publicly available.
+*   **Normalisasi Z-Score**: Semua fitur distandardisasi ke $\mu=0$, $\sigma=1$, memastikan kontribusi sama ke algoritma berbasis jarak.
+*   **NCA sebagai Langkah Akhir**: NCA digunakan semata-mata untuk reduksi dimensi supervised, tidak dikombinasikan dengan selektor yang tidak kompatibel.
+*   **Protokol Validasi yang Tepat**: NCA fit hanya pada data training; held-out test set memberikan estimasi generalisasi yang tidak bias.
+*   **Pelaporan Transparan**: Semua hyperparameter, metrik, dan confidence interval diungkapkan; dataset tersedia publik.
 
 ---
 
-## 6. Repository Structure
+## 6. Struktur Repositori
 
 ```
 pola/
 ├── data/
-│   ├── dataset/                      # Raw Pisang Raja images (H1–H10)
-│   ├── features_glcm_lbp_hsv.csv     # Extracted 62-dimensional features
-│   └── features_nca_9.csv            # NCA-projected 9D features
+│   ├── dataset/                      # Gambar Pisang Raja mentah (H1–H10)
+│   ├── features_glcm_lbp_hsv.csv     # Fitur 62-dimensi yang diekstrak
+│   └── features_nca_9.csv            # Fitur 9D terproyeksi NCA
 ├── notebooks/
-│   ├── feature_extraction.ipynb      # GLCM/LBP/HSV extraction logic
-│   ├── nca_analysis.ipynb            # NCA tuning and projection
-│   └── pola_svm_classification.ipynb # SVM training and evaluation
+│   ├── feature_extraction.ipynb      # Logika ekstraksi GLCM/LBP/HSV
+│   ├── nca_analysis.ipynb            # Tuning dan proyeksi NCA
+│   └── pola_svm_classification.ipynb # Training dan evaluasi SVM
 ├── src/
-│   └── *.py                          # Modular Python utilities
+│   └── *.py                          # Utilitas Python modular
 ├── models/
-│   ├── pola_nca9_svm_best.joblib     # Trained SVM model
+│   ├── pola_nca9_svm_best.joblib     # Model SVM terlatih
 │   ├── pola_nca9_scaler.joblib       # Feature scaler
 │   └── pola_nca9_label_encoder.joblib
 └── reports/
-    └── comparative_results.csv       # Evaluation metrics
+    └── comparative_results.csv       # Metrik evaluasi
 ```
 
-## 7. Reproducibility
+## 7. Reprodusibilitas
 
 ```bash
-# 1. Clone and setup
+# 1. Clone dan setup
 git clone <repo_url>
 cd pola
 pip install -r requirements.txt
 
-# 2. Generate NCA features
+# 2. Generate fitur NCA
 jupyter notebook notebooks/nca_analysis.ipynb
 
-# 3. Train and evaluate SVM
+# 3. Latih dan evaluasi SVM
 jupyter notebook notebooks/pola_svm_classification.ipynb
 ```
 
 ---
 
-## License
+## Lisensi
 
-This project is for educational and research purposes. Dataset usage is subject to the [Kaggle dataset license](https://www.kaggle.com/datasets/wiratrnn/banana-ripeness-image-dataset).
+Proyek ini untuk tujuan pendidikan dan penelitian. Penggunaan dataset tunduk pada [lisensi dataset Kaggle](https://www.kaggle.com/datasets/wiratrnn/banana-ripeness-image-dataset).
