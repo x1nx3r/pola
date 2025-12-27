@@ -1,4 +1,4 @@
-# Optimized Ripeness Classification of Pisang Raja Using Neighborhood Components Analysis and Support Vector Machines
+# Optimized Ripeness Classification of Pisang Ambon Using Neighborhood Components Analysis and Support Vector Machines
 
 **Repository**: `pola` Project  
 **Dataset Source**: [Banana Ripeness Image Dataset (Kaggle)](https://www.kaggle.com/datasets/wiratrnn/banana-ripeness-image-dataset)
@@ -7,7 +7,7 @@
 
 ## Abstract
 
-Accurate, non-destructive estimation of fruit ripeness is a critical challenge for post-harvest quality control, supply chain logistics, and consumer satisfaction. This study presents a robust, end-to-end computer vision pipeline for classifying the ripening stages of *Pisang Raja* (*Musa acuminata* × *balbisiana*), a commercially important banana cultivar in Southeast Asia. We propose a multi-modal feature extraction framework combining texture (GLCM), local structure (LBP), and color (HSV) descriptors, followed by **Neighborhood Components Analysis (NCA)** for supervised, discriminative dimensionality reduction.
+Accurate, non-destructive estimation of fruit ripeness is a critical challenge for post-harvest quality control, supply chain logistics, and consumer satisfaction. This study presents a robust, end-to-end computer vision pipeline for classifying the ripening stages of *Pisang Ambon* (*Musa acuminata* × *balbisiana*), a commercially important banana cultivar in Southeast Asia. We propose a multi-modal feature extraction framework combining texture (GLCM), local structure (LBP), and color (HSV) descriptors, followed by **Neighborhood Components Analysis (NCA)** for supervised, discriminative dimensionality reduction.
 
 Our key finding is that **9 optimized NCA components** constitute the intrinsic dimensionality for this task, yielding a cross-validation accuracy of **81.27%** and a test accuracy of **68.45%** with a Support Vector Machine (RBF kernel). While the raw 62-dimensional features achieve slightly higher test accuracy (71.80%), the NCA model offers a **6.8× dimensionality reduction**, making it significantly more viable for embedded deployment. These results establish a principled approach for efficient ripeness sensing systems in agricultural IoT.
 
@@ -37,13 +37,13 @@ This study makes the following contributions:
 
 ### 2.1. Source
 
-The data is sourced from the **Banana Ripeness Image Dataset** hosted on Kaggle. This dataset documents the ripening progression of two Indonesian banana cultivars (*Pisang Raja*, *Pisang Ambon*) over time.
+The data is sourced from the **Banana Ripeness Image Dataset** hosted on Kaggle. This dataset documents the ripening progression of Indonesian banana cultivars (*Pisang Ambon*) over time.
 
 *   **Dataset URL**: [https://www.kaggle.com/datasets/wiratrnn/banana-ripeness-image-dataset](https://www.kaggle.com/datasets/wiratrnn/banana-ripeness-image-dataset)
 
-### 2.2. Selected Subset: Pisang Raja (H1–H10)
+### 2.2. Selected Subset: Pisang Ambon (H1–H10)
 
-For this study, we extract only the **Pisang Raja** variety, tracking its ripening over 10 consecutive days.
+For this study, we extract only the **Pisang Ambon** variety, tracking its ripening over 10 consecutive days.
 
 | Class Label | Description | Biological Stage |
 | :---: | :--- | :--- |
@@ -277,7 +277,7 @@ A detailed breakdown of Precision, Recall, and F1-Score for each ripening stage 
 
 ### 5.1. Summary
 
-We have developed and validated a robust pipeline for automated ripeness classification of *Pisang Raja* bananas. By combining GLCM, LBP, and HSV features with supervised NCA dimensionality reduction, we achieved:
+We have developed and validated a robust pipeline for automated ripeness classification of *Pisang Ambon* bananas. By combining GLCM, LBP, and HSV features with supervised NCA dimensionality reduction, we achieved:
 
 | Metric | Cross-Validation (10-Fold) | Held-Out Test Set |
 | :--- | :---: | :---: |
@@ -288,7 +288,7 @@ The identification of **$d = 9$** as the optimal embedding dimension provides bo
 
 ### 5.2. Limitations
 
-*   **Single Variety**: Results are specific to *Pisang Raja*; generalization to other cultivars requires further validation.
+*   **Single Variety**: Results are specific to *Pisang Ambon*; generalization to other cultivars requires further validation.
 *   **Controlled Environment**: Data was captured indoors under relatively controlled conditions; field deployment may face additional challenges (variable outdoor lighting, occlusion).
 *   **Static Analysis**: The model classifies single images; temporal modeling (e.g., tracking ripening progression over time) could improve predictions.
 
@@ -346,7 +346,7 @@ We compare our methodology against a recent fruit classification study: **Singh 
 ```
 pola/
 ├── data/
-│   ├── dataset/                      # Raw Pisang Raja images (H1–H10)
+│   ├── dataset/                      # Raw Pisang Ambon images (H1–H10)
 │   ├── features_glcm_lbp_hsv.csv     # Extracted 62-dimensional features
 │   └── features_nca_9.csv            # NCA-projected 9D features
 ├── notebooks/
