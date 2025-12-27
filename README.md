@@ -1,4 +1,4 @@
-# Klasifikasi Kematangan Pisang Raja yang Dioptimalkan Menggunakan Neighborhood Components Analysis dan Support Vector Machines
+# Klasifikasi Kematangan Pisang Ambon yang Dioptimalkan Menggunakan Neighborhood Components Analysis dan Support Vector Machines
 
 **Repositori**: Proyek `pola`  
 **Sumber Dataset**: [Banana Ripeness Image Dataset (Kaggle)](https://www.kaggle.com/datasets/wiratrnn/banana-ripeness-image-dataset)
@@ -9,7 +9,7 @@
 
 ## Abstrak
 
-Estimasi kematangan buah secara akurat dan non-destruktif merupakan tantangan kritis untuk pengendalian kualitas pasca-panen, logistik rantai pasok, dan kepuasan konsumen. Penelitian ini menyajikan pipeline computer vision yang robust dan end-to-end untuk mengklasifikasikan tahap kematangan *Pisang Raja* (*Musa acuminata* × *balbisiana*), kultivar pisang yang penting secara komersial di Asia Tenggara. Kami mengusulkan framework ekstraksi fitur multi-modal yang menggabungkan deskriptor tekstur (GLCM), struktur lokal (LBP), dan warna (HSV), diikuti dengan **Neighborhood Components Analysis (NCA)** untuk reduksi dimensi diskriminatif yang supervised.
+Estimasi kematangan buah secara akurat dan non-destruktif merupakan tantangan kritis untuk pengendalian kualitas pasca-panen, logistik rantai pasok, dan kepuasan konsumen. Penelitian ini menyajikan pipeline computer vision yang robust dan end-to-end untuk mengklasifikasikan tahap kematangan *Pisang Ambon* (*Musa acuminata* × *balbisiana*), kultivar pisang yang penting secara komersial di Asia Tenggara. Kami mengusulkan framework ekstraksi fitur multi-modal yang menggabungkan deskriptor tekstur (GLCM), struktur lokal (LBP), dan warna (HSV), diikuti dengan **Neighborhood Components Analysis (NCA)** untuk reduksi dimensi diskriminatif yang supervised.
 
 Temuan utama kami adalah bahwa **9 komponen NCA yang dioptimalkan** merupakan dimensi intrinsik untuk tugas ini, menghasilkan akurasi cross-validation **81.27%** dan akurasi test **68.45%** dengan Support Vector Machine (kernel RBF). Meskipun fitur mentah 62-dimensi mencapai akurasi test sedikit lebih tinggi (71.80%), model NCA menawarkan **reduksi dimensi 6.8×**, menjadikannya lebih layak untuk deployment pada perangkat embedded. Hasil ini menetapkan pendekatan yang berprinsip untuk sistem penginderaan kematangan yang efisien dalam IoT pertanian.
 
@@ -39,13 +39,13 @@ Penelitian ini memberikan kontribusi berikut:
 
 ### 2.1. Sumber
 
-Data bersumber dari **Banana Ripeness Image Dataset** yang di-host di Kaggle. Dataset ini mendokumentasikan progresi kematangan dua kultivar pisang Indonesia (*Pisang Raja*, *Pisang Ambon*) dari waktu ke waktu.
+Data bersumber dari **Banana Ripeness Image Dataset** yang di-host di Kaggle. Dataset ini mendokumentasikan progresi kematangan dua kultivar pisang Indonesia (*Pisang Ambon*) dari waktu ke waktu.
 
 *   **URL Dataset**: [https://www.kaggle.com/datasets/wiratrnn/banana-ripeness-image-dataset](https://www.kaggle.com/datasets/wiratrnn/banana-ripeness-image-dataset)
 
-### 2.2. Subset yang Dipilih: Pisang Raja (H1–H10)
+### 2.2. Subset yang Dipilih: Pisang Ambon (H1–H10)
 
-Untuk penelitian ini, kami hanya mengekstrak varietas **Pisang Raja**, melacak kematangannya selama 10 hari berturut-turut.
+Untuk penelitian ini, kami hanya mengekstrak varietas **Pisang Ambon**, melacak kematangannya selama 10 hari berturut-turut.
 
 | Label Kelas | Deskripsi | Tahap Biologis |
 | :---: | :--- | :--- |
@@ -279,7 +279,7 @@ Breakdown detail Precision, Recall, dan F1-Score untuk setiap tahap kematangan (
 
 ### 5.1. Ringkasan
 
-Kami telah mengembangkan dan memvalidasi pipeline yang robust untuk klasifikasi kematangan otomatis pisang *Pisang Raja*. Dengan menggabungkan fitur GLCM, LBP, dan HSV dengan reduksi dimensi NCA supervised, kami mencapai:
+Kami telah mengembangkan dan memvalidasi pipeline yang robust untuk klasifikasi kematangan otomatis pisang *Pisang Ambon*. Dengan menggabungkan fitur GLCM, LBP, dan HSV dengan reduksi dimensi NCA supervised, kami mencapai:
 
 | Metrik | Cross-Validation (10-Fold) | Held-Out Test Set |
 | :--- | :---: | :---: |
@@ -290,7 +290,7 @@ Identifikasi **$d = 9$** sebagai dimensi embedding optimal memberikan insight te
 
 ### 5.2. Keterbatasan
 
-*   **Varietas Tunggal**: Hasil spesifik untuk *Pisang Raja*; generalisasi ke kultivar lain memerlukan validasi lebih lanjut.
+*   **Varietas Tunggal**: Hasil spesifik untuk *Pisang Ambon*; generalisasi ke kultivar lain memerlukan validasi lebih lanjut.
 *   **Lingkungan Terkontrol**: Data diambil di dalam ruangan di bawah kondisi yang relatif terkontrol; deployment lapangan mungkin menghadapi tantangan tambahan (pencahayaan outdoor variabel, oklusi).
 *   **Analisis Statis**: Model mengklasifikasikan gambar tunggal; pemodelan temporal (misalnya, melacak progresi kematangan dari waktu ke waktu) dapat meningkatkan prediksi.
 
@@ -348,7 +348,7 @@ Kami membandingkan metodologi kami dengan studi klasifikasi buah terbaru: **Sing
 ```
 pola/
 ├── data/
-│   ├── dataset/                      # Gambar Pisang Raja mentah (H1–H10)
+│   ├── dataset/                      # Gambar Pisang Ambon mentah (H1–H10)
 │   ├── features_glcm_lbp_hsv.csv     # Fitur 62-dimensi yang diekstrak
 │   └── features_nca_9.csv            # Fitur 9D terproyeksi NCA
 ├── notebooks/

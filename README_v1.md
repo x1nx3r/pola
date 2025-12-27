@@ -2,7 +2,7 @@
 
 ## 1. Project Overview
 
-This project implements a state-of-the-art computer vision pipeline for classifying images of **Pisang Raja (King Banana)** from the "Pola" dataset. The primary objective is to accurately categorize images into their respective ripening stages by leveraging high-dimensional feature extraction, supervised dimensionality reduction, and robust classification algorithms.
+This project implements a state-of-the-art computer vision pipeline for classifying images of **Pisang Ambon** from the "Pola" dataset. The primary objective is to accurately categorize images into their respective ripening stages by leveraging high-dimensional feature extraction, supervised dimensionality reduction, and robust classification algorithms.
 
 The core innovation of this pipeline is the transition from a standard 10-component analysis to an optimized **9-component Neighborhood Components Analysis (NCA)**, which has been empirically proven to maximize classification accuracy (81.86%).
 
@@ -11,13 +11,13 @@ The core innovation of this pipeline is the transition from a standard 10-compon
 The analysis focuses on a specific high-quality subset of a larger banana ripeness dataset.
 
 ### Source Data
-*   **Varieties**: Pisang Raja, Pisang Ambon.
+*   **Varieties**: Pisang Ambon.
 *   **Devices**: Three distinct smartphone cameras with varying specifications.
 *   **Methodology**: Images captured twice daily from two different angles (left/right) until complete decay.
 *   **Filename Format**: `{phone_brand}_{image_initial}_H{day}F{phase}{side}`.
 
-### Selected Subset: "Pola" (Pisang Raja)
-For this project, we utilize **Pisang Raja** samples exclusively, tracking their ripening process over a 10-day period.
+### Selected Subset: "Pola" (Pisang Ambon)
+For this project, we utilize **Pisang Ambon** samples exclusively, tracking their ripening process over a 10-day period.
 
 *   **Classes**: 10 distinct classes representing daily ripeness stages.
     *   **H1**: Day 1 (Unripe/Green)
